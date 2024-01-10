@@ -1,8 +1,14 @@
 import React, { useState } from 'react'
 import { Box, Button, TextField, Typography } from '@mui/material'
+import axios from 'axios'
+import { authActions } from '../store/index'
+import { useDispatch } from 'react-redux'
+import { useNavigate } from 'react-router-dom'
 
 const Auth = () => {
 
+  const dispatch = useDispatch()
+  const navigate = useNavigate()
   const [isSignedIn, setIsSignedIn] = useState(false)
   const [inputs, setInputs] = useState({
     name: "", email: "", password: ""
@@ -15,14 +21,36 @@ const Auth = () => {
     }))
   }
 
+  const sendRequest = async (type='login') => {
+    const res = await axios.post(`http://localhost:5000/api/user/${type}`, {
+      name: inputs.name,
+      email: inputs.email,
+      password: inputs.password
+    })
+    .catch(err => console.log(err))
+
+    const data = await res.data
+    return data
+  }
+
   const handleSubmit = (e) => {
     e.preventDefault()
-    console.log(inputs)
+    if(isSignedIn) {
+      sendRequest('signup')
+        .then(() => dispatch(authActions.login()))
+        .then(() => navigate('/login'))
+        .then(data => console.log(data))
+    } else {
+      sendRequest()
+        .then(() => dispatch(authActions.login()))
+        .then(() => navigate('/blogs'))
+        .then(data => console.log(data))
+    }
   }
 
   return (
     <div>
-      <form action="#" onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit}>
         <Box 
           display='flex' 
           flexDirection={'column'} 
