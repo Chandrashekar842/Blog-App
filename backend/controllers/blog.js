@@ -7,7 +7,7 @@ export const getBlogs = async (req, res, next) => {
     let blogs
 
     try {
-        blogs = await Blog.find()
+        blogs = await Blog.find().populate('user')
     } catch (error) {
         console.log(err)
     }
